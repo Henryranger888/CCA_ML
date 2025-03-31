@@ -1,0 +1,52 @@
+############################################################################
+# E) Kaplan–Meier Analysis & Plotting Using survminer (Training & Validation)
+############################################################################
+library(survival)
+library(survminer)
+
+# --- Training Set ---
+surv_obj_train <- Surv(time = train_data$OS, event = train_data$event)
+fit_km_train   <- survfit(surv_obj_train ~ RSF_RiskGroup, data = train_data)
+
+# Compute coordinates for p-value placement:
+# Using 90% of max OS for x and 0.95 for y.
+pval_coord_train <- c(max(train_data$OS, na.rm = TRUE) * 0.9, 0.95)
+
+p_train <- ggsurvplot(
+  fit         = fit_km_train,
+  data        = train_data,
+  conf.int    = TRUE,              # show 95% CI for each curve
+  pval        = TRUE,              # display log-rank p-value
+  pval.method = TRUE,              # display test method
+  pval.coord  = pval_coord_train,  # position p-value in top right
+  title       = "Kaplan-Meier (Training) by RSF Risk Tertiles",
+  legend.title= "RSF Risk",
+  legend.labs = c("Low", "Intermediate", "High"),
+  xlab        = "Time (OS)",
+  ylab        = "Survival Probability",
+  risk.table  = TRUE             # add risk table below the plot
+)
+print(p_train)
+
+# --- Validation Set ---
+surv_obj_val <- Surv(time = validation_data$OS, event = validation_data$event)
+fit_km_val   <- survfit(surv_obj_val ~ RSF_RiskGroup, data = validation_data)
+
+# Compute coordinates for the validation p-value
+pval_coord_val <- c(max(validation_data$OS, na.rm = TRUE) * 0.9, 0.95)
+
+p_val <- ggsurvplot(
+  fit         = fit_km_val,
+  data        = validation_data,
+  conf.int    = TRUE,              # show 95% CI for each curve
+  pval        = TRUE,              # display log-rank p-value
+  pval.method = TRUE,              # display test method
+  pval.coord  = pval_coord_val,    # position p-value in top right
+  title       = "Kaplan-Meier (Validation) by RSF Risk Tertiles",
+  legend.title= "RSF Risk",
+  legend.labs = c("Low", "Intermediate", "High"),
+  xlab        = "Time (OS)",
+  ylab        = "Survival Probability",
+  risk.table  = TRUE
+)
+print(p_val)
